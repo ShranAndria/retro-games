@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPACE MOTH FIGHTER</title>
+<style>.back{color:var(--muted);font-size:13px;text-decoration:none;justify-self:start}.back:hover{color:var(--cyan)}</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=BIZ+UDPGothic:wght@400;700&display=swap">
+<style>
+/* Layout: one column — the FM-7 screen in a dark monitor bezel, then the manual sheet below */
+:root {
+  --bg: #0b0d14;          /* room-dark navy */
+  --bezel: #1c1f2a;       /* monitor plastic */
+  --bezel-edge: #2c3142;
+  --ink: #e7e9f0;
+  --muted: #8d93a8;
+  --cyan: #3ee6f0;        /* FM-7 color 5 */
+  --yellow: #ffe23a;      /* FM-7 color 6 */
+  --red: #ff4a4a;         /* FM-7 color 2 */
+  --display: "DotGothic16", "MS Gothic", monospace;
+  --body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.7; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; display: grid; gap: 22px; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; }
+header h1 { font-family: var(--display); font-weight: 400; font-size: clamp(28px, 5vw, 44px); letter-spacing: .35em; margin: 0; color: var(--yellow); }
+header h1 span { color: var(--red); }
+header p { margin: 0; color: var(--muted); font-size: 13px; letter-spacing: .04em; }
+
+.monitor { background: var(--bezel); border: 1px solid var(--bezel-edge); border-radius: 14px; padding: clamp(10px, 2.4vw, 22px); box-shadow: 0 18px 50px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.05); }
+.screen { position: relative; aspect-ratio: 640 / 400; max-width: 100%; background: #000; border-radius: 6px; overflow: hidden; }
+.screen canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+.screen::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.14) 2px 3px); mix-blend-mode: multiply; }
+.overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,.78); border: 0; color: var(--ink); cursor: pointer; font: inherit; width: 100%; }
+.overlay div { font-family: var(--display); text-align: center; display: grid; gap: 8px; }
+.overlay b { font-weight: 400; font-size: clamp(18px, 3.4vw, 28px); color: var(--cyan); letter-spacing: .12em; }
+.overlay small { color: var(--muted); font-size: 13px; font-family: var(--body); }
+.overlay:focus-visible { outline: 2px solid var(--cyan); outline-offset: -4px; }
+
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+.lamp { display: inline-flex; align-items: center; gap: 7px; font-family: var(--display); letter-spacing: .1em; }
+.lamp i { width: 22px; height: 9px; border-radius: 2px; background: #3a1414; box-shadow: inset 0 0 0 1px #000; }
+.lamp.on i { background: var(--red); box-shadow: 0 0 10px var(--red), inset 0 0 0 1px #000; }
+.bar label { display: inline-flex; align-items: center; gap: 6px; }
+.bar select, .bar button { font: inherit; color: var(--ink); background: #10131c; border: 1px solid var(--bezel-edge); border-radius: 6px; padding: 3px 8px; }
+.bar button { cursor: pointer; }
+.bar button:focus-visible, .bar select:focus-visible { outline: 2px solid var(--cyan); }
+.spacer { flex: 1; }
+
+.touch { display: none; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; margin-top: 12px; align-items: stretch; }
+.pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.pad button { padding-block: 12px; font-size: 16px; }
+.side { display: grid; gap: 8px; grid-template-rows: 2fr 1fr 1fr 1fr; }
+.touch button { font-family: var(--display); font-size: 18px; color: var(--ink); background: #151927; border: 1px solid var(--bezel-edge); border-radius: 10px; padding-block: 16px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.touch button:active, .touch button.down { background: #23293d; }
+.touch .fire { color: var(--yellow); }
+.touch .start, .touch .pause { padding-block: 8px; font-size: 14px; color: var(--cyan); }
+.touch .fire.down { background: #3a2a10; }
+.tbl { overflow-x: auto; }
+.tbl table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.tbl th, .tbl td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--bezel-edge); vertical-align: top; }
+.tbl th { color: var(--muted); font-weight: 400; }
+.tbl td.n { font-variant-numeric: tabular-nums; text-align: right; color: var(--yellow); }
+.wide { grid-column: 1 / -1; }
+@media (pointer: coarse) { .touch { display: grid; } }
+
+.sheet { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 18px 28px; }
+.sheet section { min-width: 0; }
+.sheet h2 { font-family: var(--display); font-weight: 400; font-size: 16px; letter-spacing: .14em; color: var(--cyan); margin: 0 0 6px; text-wrap: balance; }
+.sheet p { margin: 0 0 8px; }
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; margin: 0; }
+.keys dt { margin: 0; }
+.keys dd { margin: 0; color: var(--muted); }
+kbd { font-family: var(--display); font-size: 13px; display: inline-block; min-width: 2.2em; text-align: center; padding: 1px 6px; border: 1px solid var(--bezel-edge); border-bottom-width: 3px; border-radius: 5px; background: #141826; color: var(--ink); }
+.story { color: #c9cddb; }
+.credit { font-size: 13px; color: var(--muted); border-top: 1px solid var(--bezel-edge); padding-top: 14px; display: grid; gap: 4px; }
+.credit p { margin: 0; }
+</style><style>
+.screen { aspect-ratio: 576 / 400; }
+.lr { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.side { grid-template-rows: 2fr 1fr; }
+.tbl { border-collapse: collapse; font-size: 14px; }
+.tbl th, .tbl td { padding: 3px 12px 3px 0; text-align: left; border-bottom: 1px solid rgba(255,255,255,.08); }
+.tbl th { color: var(--muted); font-weight: 500; }
+.chk { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.chk input { accent-color: var(--yellow); }
+</style>
+
+<div class="wrap">
+  <a class="back" href="./">← 作品集のトップへ</a>
+  <header>
+    <h1>SPACE <span>MOTH FIGHTER</span></h1>
+    <p>VIC-1001 BASIC＋6502マシン語 ／ 作・中川智裕 ／ 工学社「マイコンゲームの本 4」掲載</p>
+  </header>
+
+  <div class="monitor">
+    <div class="screen">
+      <canvas id="scr" width="576" height="400" aria-label="SPACE MOTH FIGHTER のゲーム画面"></canvas>
+      <button class="overlay" id="startOverlay" type="button">
+        <div><b>クリックで電源 ON</b><small>音が出ます。タイトル画面で F1 (または Enter) を押すと始まります</small></div>
+      </button>
+    </div>
+    <div class="bar">
+      <span class="lamp" id="padLamp"><i></i>PAD</span>
+      <label for="speed">速さ
+        <select id="speed">
+          <option value="0.5">0.5倍</option>
+          <option value="0.75">0.75倍</option>
+          <option value="1" selected>VIC 等速</option>
+          <option value="1.5">1.5倍</option>
+          <option value="2">2倍</option>
+        </select>
+      </label>
+      <label for="quick" class="chk"><input type="checkbox" id="quick" checked> 敵の待ち時間 約3秒</label>
+      <button id="mute" type="button">音: ON</button>
+      <span class="spacer"></span>
+      <button id="reset" type="button">リセット</button>
+    </div>
+    <div class="touch" aria-label="画面ボタン">
+      <div class="lr">
+        <button type="button" data-k="28">◀ N</button><button type="button" data-k="36">M ▶</button>
+      </div>
+      <div class="side">
+        <button id="tFire" class="fire" type="button">BEAM</button>
+        <button id="tStart" class="start" type="button">F1</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <section>
+      <h2>操作</h2>
+      <dl class="keys">
+        <dt><kbd>N</kbd><kbd>M</kbd></dt><dd>左右に移動 (押している間)</dd>
+        <dt><kbd>←</kbd><kbd>→</kbd></dt><dd>同じく左右に移動</dd>
+        <dt><kbd>SHIFT</kbd> / <kbd>SPACE</kbd></dt><dd>ビームを撃つ。一度離さないと次のタマは出ません (原作どおり)</dd>
+        <dt><kbd>F1</kbd> / <kbd>Enter</kbd></dt><dd>タイトル画面からスタート</dd>
+      </dl>
+      <h2 style="margin-top:14px">ゲームパッド</h2>
+      <dl class="keys">
+        <dt>十字キー / 左スティック</dt><dd>左右に移動</dd>
+        <dt>A B X Y / R</dt><dd>ビーム</dd>
+        <dt>START</dt><dd>F1 と同じ</dd>
+      </dl>
+      <p style="margin-top:6px;color:var(--muted);font-size:13px">パッドをつないだら、どれかのボタンを一度押すと PAD ランプが点きます。</p>
+    </section>
+    <section>
+      <h2>プロローグ</h2>
+      <p>2167年、突然地球軍最前線基地ピークからの通信が途絶えた。そこで、惑星ピークに近かった第三パトロール隊に調査命令が出た。</p>
+      <p>我々のパトロール艇、出羽場具馬加理号 (デワバグバカリ) が到着したときにはすでに基地はなく、地面に無数の穴があいているだけであった。</p>
+      <p>我々は地球に帰ろうとしたが、そのとき、推進エンジンは壊れてしまった。しかたなく基地の跡を調査していると、基地の隊員の残したボイスデータを見つけた。直ちに再生してみた。私は耳を疑った。それは『この星に住んでいた SPACE MOTH の一種ルイジンという宇宙蛾が元の百倍の大きさ、約12メートルにもなり、攻撃をしてきた。さらに、地下に住んでいたアツカという生物がその長い舌に破壊力を持ち、地面の上につき出してきた』などだった。</p>
+      <p>パトロール艇に帰ったそのとき、レーダーはルイジンを捕えていた……。</p>
+    </section>
+    <section>
+      <h2>ゲームの説明</h2>
+      <p>人類の敵、ルイジンやそれの落とすタマを避け、さらにアツカのだす舌の上を通らないようにし、かつエネルギーがなくなるまでにルイジン30〜40を破壊します。敵の数 (MOTH)、エネルギー (FUEL) はそれぞれグラフで表されます。</p>
+      <p>注意しなければならないのは、何機自分の船が残っていても、エネルギーがなくなると即ゲーム・オーバーになってしまうことです。</p>
+      <h2 style="margin-top:14px">高得点のコツ</h2>
+      <p>その1. 問題となるのはルイジンではなくアツカです。アツカに気を付けて、下の方に来たルイジンを狙ってください。</p>
+      <p>その2. これは BASIC プログラムのバグ (?) を利用しますが、敵の残りが少ないときにわざとやられます。するとスコアが増えます。</p>
+    </section>
+    <section>
+      <h2>面ごとの敵数</h2>
+      <table class="tbl">
+        <tr><th>面</th><th>ルイジン</th><th>アツカ</th></tr>
+        <tr><td>1</td><td>3</td><td>1</td></tr><tr><td>2</td><td>5</td><td>1</td></tr><tr><td>3</td><td>5</td><td>2</td></tr>
+        <tr><td>4</td><td>3</td><td>2</td></tr><tr><td>5</td><td>5</td><td>2</td></tr><tr><td>6</td><td>5</td><td>3</td></tr>
+        <tr><td>7〜</td><td>15</td><td>3</td></tr>
+      </table>
+      <h2 style="margin-top:14px">友人たちのスコア</h2>
+      <table class="tbl">
+        <tr><td>中川</td><td>2180</td><td>尾崎</td><td>450</td></tr>
+        <tr><td>中川</td><td>1980</td><td>M.O</td><td>420</td></tr>
+        <tr><td>建部</td><td>1680</td><td>M.O</td><td>380</td></tr>
+        <tr><td>尾崎</td><td>1380</td><td>M.O</td><td>40</td></tr>
+        <tr><td>池内</td><td>800</td><td></td><td></td></tr>
+        <tr><td>池内</td><td>680</td><td></td><td></td></tr>
+      </table>
+      <p style="margin-top:8px">あなたのスコア: <b id="best">—</b></p>
+    </section>
+  </div>
+
+  <div class="credit">
+    <p>この画面では、誌面のダンプから復元したマシン語 ($15A0〜$1E06) を 6502 エミュレーションでそのまま動かし、BASIC 部分は1行ずつ JavaScript に書き直しています。変えたのはキー入力だけです。</p>
+    <p>「敵の待ち時間 約3秒」について: 原作では、撃ちもらして地面まで逃げたルイジンは、画面外を一周して約28秒後 (等速) に上から戻ってきます。この設定をオンにすると、画面外にいる時間を実時間で約3秒に縮めます (速さの設定に関係なく約3秒)。戻ってくる位置と動き方は原作のままです。オフにすると原作どおりです。</p>
+    <p>復元について: 誌面で欠けていた $1814〜$181F の12バイトは前後のコードから補いました。VIC の文字 ROM は収録していないので、タイトル文字などは代わりの書体です。誌面写真が白黒のため、文字の色の一部は推定です。</p>
+    <p>「アツカはぼくが以前ある所で目にしたゲームから作りだしたものです (ある所とはゲームセンターにあらず)。……私めも中学三年なので、はやりのマイコンを押し入れで冬眠させることにしました。ではまた春の復活をただ一人思いつつ、あなたのマイコン・ライフに幸多かれと祈りつつ私はさります (諸星あたるきどり)。」— 作者</p>
+  </div>
+</div>
+<script>
+const SMF_PROG="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";
+const SMF_CHR="ADxmfn5+YD4APGZmfmZmZgB8ZmZ8ZmZ8ADxmYGBgZjwAfGZmZmZmfAB+YGB8YGB+AH5gYHxgYGAAPGZgfmZmPgBmZmZ+ZmZmADwYGBgYGDwAHgwMDAxsOABmbHhweGxmAGBgYGBgYH4AZn5+fmZmZgBmdn5uZmZmADxmZmZmZjwAfGZmfGBgYAA8ZmZmfmw+AHxmZnx4bGYAPmBgPAYGfAB+GBgYGBgYAGZmZmZmZjwAZmZmZmY8GABmZmZ+fn48AGZmPBg8ZmYAZmY8GBgYGAB+BgwYMGB+ADwwMDAwMDwAHDYwfDAwfgA8DAwMDAw8ABg8fhgYGBgAABgwfjAYAAAAAAAAAAAAABgYGBgYABgAPDwAAAAAAAA8fjw8PH48ABg+eDwefBgAdnwMGDA+bgA4bHgwfmw+ABgYMAAAAAAADBgwMDAYDAAwGAwMDBgwAAB+PH48fgAAABgYfhgYAAAAAAAAGBgwAAAAAH4AAAAAAAAAAAA4OAAABgwYMGAAADxmbn52ZjwAGDgYGBgYPAA8ZgYMGDB+AH4MGAwGZjwADBw8bH4MDAB+YHwGBmY8ABwwYHxmZjwAfgYMGDAwMAA8ZmY8ZmY8ADxmZj4GDDgAADg4ADg4AAAAODgAOBgwAAwYMGAwGAwAAAB+AH4AAAAwGAwGDBgwADxmBgwYABgAAAD//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+// MOS 6502 core (documented opcodes, cycle counts incl. page-cross penalties). mem: {rd(a), wr(a,v)}
+class CPU6502 {
+  constructor(mem) { this.mem = mem; this.a = 0; this.x = 0; this.y = 0; this.s = 0xFF; this.p = 0x24; this.pc = 0; this.cycles = 0; }
+  rd(a) { return this.mem.rd(a & 0xFFFF); }
+  wr(a, v) { this.mem.wr(a & 0xFFFF, v & 0xFF); }
+  push(v) { this.wr(0x100 | this.s, v); this.s = (this.s - 1) & 0xFF; }
+  pull() { this.s = (this.s + 1) & 0xFF; return this.rd(0x100 | this.s); }
+  nz(v) { this.p = (this.p & 0x7D) | (v & 0x80) | (v ? 0 : 2); return v; }
+  fetch() { const v = this.rd(this.pc); this.pc = (this.pc + 1) & 0xFFFF; return v; }
+  fetch16() { const l = this.fetch(); return l | (this.fetch() << 8); }
+  // addressing: return effective address
+  zp() { return this.fetch(); }
+  zpx() { return (this.fetch() + this.x) & 0xFF; }
+  zpy() { return (this.fetch() + this.y) & 0xFF; }
+  abs() { return this.fetch16(); }
+  absx(pen) { const b = this.fetch16(), a = (b + this.x) & 0xFFFF; if (pen && (a ^ b) & 0x100) this.cycles++; return a; }
+  absy(pen) { const b = this.fetch16(), a = (b + this.y) & 0xFFFF; if (pen && (a ^ b) & 0x100) this.cycles++; return a; }
+  indx() { const z = (this.fetch() + this.x) & 0xFF; return this.rd(z) | (this.rd((z + 1) & 0xFF) << 8); }
+  indy(pen) { const z = this.fetch(), b = this.rd(z) | (this.rd((z + 1) & 0xFF) << 8), a = (b + this.y) & 0xFFFF; if (pen && (a ^ b) & 0x100) this.cycles++; return a; }
+  adc(m) {
+    if (this.p & 8) { // decimal
+      let lo = (this.a & 15) + (m & 15) + (this.p & 1), hi = (this.a >> 4) + (m >> 4);
+      if (lo > 9) { lo -= 10; hi++; }
+      const bin = (this.a + m + (this.p & 1)) & 0xFF;
+      this.p &= ~0xC3; if (!bin) this.p |= 2;
+      if (hi & 8) this.p |= 0x80;
+      if (~(this.a ^ m) & (this.a ^ (hi << 4)) & 0x80) this.p |= 0x40;
+      if (hi > 9) { hi -= 10; this.p |= 1; }
+      this.a = ((hi << 4) | (lo & 15)) & 0xFF; return;
+    }
+    const r = this.a + m + (this.p & 1);
+    this.p = (this.p & ~0xC3) | (r > 0xFF ? 1 : 0) | ((~(this.a ^ m) & (this.a ^ r) & 0x80) ? 0x40 : 0);
+    this.a = this.nz(r & 0xFF);
+  }
+  sbc(m) {
+    if (this.p & 8) {
+      const c = this.p & 1 ? 0 : 1; let lo = (this.a & 15) - (m & 15) - c, hi = (this.a >> 4) - (m >> 4);
+      if (lo < 0) { lo += 10; hi--; }
+      const r = this.a - m - c;
+      this.p = (this.p & ~0xC3) | (r >= 0 ? 1 : 0) | (((this.a ^ m) & (this.a ^ r) & 0x80) ? 0x40 : 0);
+      if (!(r & 0xFF)) this.p |= 2; if (r & 0x80) this.p |= 0x80;
+      if (hi < 0) hi += 10;
+      this.a = ((hi << 4) | (lo & 15)) & 0xFF; return;
+    }
+    const r = this.a - m - (this.p & 1 ? 0 : 1);
+    this.p = (this.p & ~0xC3) | (r >= 0 ? 1 : 0) | (((this.a ^ m) & (this.a ^ r) & 0x80) ? 0x40 : 0);
+    this.a = this.nz(r & 0xFF);
+  }
+  cmp(r, m) { const d = r - m; this.p = (this.p & ~0x83) | (d >= 0 ? 1 : 0) | (d & 0x80) | ((d & 0xFF) ? 0 : 2); }
+  branch(c) { const o = this.fetch(); if (c) { const t = (this.pc + (o < 128 ? o : o - 256)) & 0xFFFF; this.cycles += ((t ^ this.pc) & 0x100) ? 2 : 1; this.pc = t; } }
+  rmw(a, f) { this.wr(a, f(this.rd(a))); }
+  asl(v) { this.p = (this.p & ~1) | (v >> 7); return this.nz((v << 1) & 0xFF); }
+  lsr(v) { this.p = (this.p & ~1) | (v & 1); return this.nz(v >> 1); }
+  rol(v) { const c = this.p & 1; this.p = (this.p & ~1) | (v >> 7); return this.nz(((v << 1) | c) & 0xFF); }
+  ror(v) { const c = this.p & 1; this.p = (this.p & ~1) | (v & 1); return this.nz((v >> 1) | (c << 7)); }
+  irq() { if (this.p & 4) return; this.push(this.pc >> 8); this.push(this.pc & 0xFF); this.push((this.p & ~0x10) | 0x20); this.p |= 4; this.pc = this.rd(0xFFFE) | (this.rd(0xFFFF) << 8); this.cycles += 7; }
+  step() {
+    const op = this.fetch(); let a;
+    switch (op) {
+      // loads
+      case 0xA9: this.a = this.nz(this.fetch()); this.cycles += 2; break;
+      case 0xA5: this.a = this.nz(this.rd(this.zp())); this.cycles += 3; break;
+      case 0xB5: this.a = this.nz(this.rd(this.zpx())); this.cycles += 4; break;
+      case 0xAD: this.a = this.nz(this.rd(this.abs())); this.cycles += 4; break;
+      case 0xBD: this.a = this.nz(this.rd(this.absx(1))); this.cycles += 4; break;
+      case 0xB9: this.a = this.nz(this.rd(this.absy(1))); this.cycles += 4; break;
+      case 0xA1: this.a = this.nz(this.rd(this.indx())); this.cycles += 6; break;
+      case 0xB1: this.a = this.nz(this.rd(this.indy(1))); this.cycles += 5; break;
+      case 0xA2: this.x = this.nz(this.fetch()); this.cycles += 2; break;
+      case 0xA6: this.x = this.nz(this.rd(this.zp())); this.cycles += 3; break;
+      case 0xB6: this.x = this.nz(this.rd(this.zpy())); this.cycles += 4; break;
+      case 0xAE: this.x = this.nz(this.rd(this.abs())); this.cycles += 4; break;
+      case 0xBE: this.x = this.nz(this.rd(this.absy(1))); this.cycles += 4; break;
+      case 0xA0: this.y = this.nz(this.fetch()); this.cycles += 2; break;
+      case 0xA4: this.y = this.nz(this.rd(this.zp())); this.cycles += 3; break;
+      case 0xB4: this.y = this.nz(this.rd(this.zpx())); this.cycles += 4; break;
+      case 0xAC: this.y = this.nz(this.rd(this.abs())); this.cycles += 4; break;
+      case 0xBC: this.y = this.nz(this.rd(this.absx(1))); this.cycles += 4; break;
+      // stores
+      case 0x85: this.wr(this.zp(), this.a); this.cycles += 3; break;
+      case 0x95: this.wr(this.zpx(), this.a); this.cycles += 4; break;
+      case 0x8D: this.wr(this.abs(), this.a); this.cycles += 4; break;
+      case 0x9D: this.wr(this.absx(0), this.a); this.cycles += 5; break;
+      case 0x99: this.wr(this.absy(0), this.a); this.cycles += 5; break;
+      case 0x81: this.wr(this.indx(), this.a); this.cycles += 6; break;
+      case 0x91: this.wr(this.indy(0), this.a); this.cycles += 6; break;
+      case 0x86: this.wr(this.zp(), this.x); this.cycles += 3; break;
+      case 0x96: this.wr(this.zpy(), this.x); this.cycles += 4; break;
+      case 0x8E: this.wr(this.abs(), this.x); this.cycles += 4; break;
+      case 0x84: this.wr(this.zp(), this.y); this.cycles += 3; break;
+      case 0x94: this.wr(this.zpx(), this.y); this.cycles += 4; break;
+      case 0x8C: this.wr(this.abs(), this.y); this.cycles += 4; break;
+      // transfers
+      case 0xAA: this.x = this.nz(this.a); this.cycles += 2; break;
+      case 0xA8: this.y = this.nz(this.a); this.cycles += 2; break;
+      case 0x8A: this.a = this.nz(this.x); this.cycles += 2; break;
+      case 0x98: this.a = this.nz(this.y); this.cycles += 2; break;
+      case 0xBA: this.x = this.nz(this.s); this.cycles += 2; break;
+      case 0x9A: this.s = this.x; this.cycles += 2; break;
+      // stack
+      case 0x48: this.push(this.a); this.cycles += 3; break;
+      case 0x68: this.a = this.nz(this.pull()); this.cycles += 4; break;
+      case 0x08: this.push(this.p | 0x30); this.cycles += 3; break;
+      case 0x28: this.p = (this.pull() & ~0x10) | 0x20; this.cycles += 4; break;
+      // inc/dec
+      case 0xE8: this.x = this.nz((this.x + 1) & 0xFF); this.cycles += 2; break;
+      case 0xC8: this.y = this.nz((this.y + 1) & 0xFF); this.cycles += 2; break;
+      case 0xCA: this.x = this.nz((this.x - 1) & 0xFF); this.cycles += 2; break;
+      case 0x88: this.y = this.nz((this.y - 1) & 0xFF); this.cycles += 2; break;
+      case 0xE6: this.rmw(this.zp(), (v) => this.nz((v + 1) & 0xFF)); this.cycles += 5; break;
+      case 0xF6: this.rmw(this.zpx(), (v) => this.nz((v + 1) & 0xFF)); this.cycles += 6; break;
+      case 0xEE: this.rmw(this.abs(), (v) => this.nz((v + 1) & 0xFF)); this.cycles += 6; break;
+      case 0xFE: this.rmw(this.absx(0), (v) => this.nz((v + 1) & 0xFF)); this.cycles += 7; break;
+      case 0xC6: this.rmw(this.zp(), (v) => this.nz((v - 1) & 0xFF)); this.cycles += 5; break;
+      case 0xD6: this.rmw(this.zpx(), (v) => this.nz((v - 1) & 0xFF)); this.cycles += 6; break;
+      case 0xCE: this.rmw(this.abs(), (v) => this.nz((v - 1) & 0xFF)); this.cycles += 6; break;
+      case 0xDE: this.rmw(this.absx(0), (v) => this.nz((v - 1) & 0xFF)); this.cycles += 7; break;
+      // arithmetic
+      case 0x69: this.adc(this.fetch()); this.cycles += 2; break;
+      case 0x65: this.adc(this.rd(this.zp())); this.cycles += 3; break;
+      case 0x75: this.adc(this.rd(this.zpx())); this.cycles += 4; break;
+      case 0x6D: this.adc(this.rd(this.abs())); this.cycles += 4; break;
+      case 0x7D: this.adc(this.rd(this.absx(1))); this.cycles += 4; break;
+      case 0x79: this.adc(this.rd(this.absy(1))); this.cycles += 4; break;
+      case 0x61: this.adc(this.rd(this.indx())); this.cycles += 6; break;
+      case 0x71: this.adc(this.rd(this.indy(1))); this.cycles += 5; break;
+      case 0xE9: this.sbc(this.fetch()); this.cycles += 2; break;
+      case 0xE5: this.sbc(this.rd(this.zp())); this.cycles += 3; break;
+      case 0xF5: this.sbc(this.rd(this.zpx())); this.cycles += 4; break;
+      case 0xED: this.sbc(this.rd(this.abs())); this.cycles += 4; break;
+      case 0xFD: this.sbc(this.rd(this.absx(1))); this.cycles += 4; break;
+      case 0xF9: this.sbc(this.rd(this.absy(1))); this.cycles += 4; break;
+      case 0xE1: this.sbc(this.rd(this.indx())); this.cycles += 6; break;
+      case 0xF1: this.sbc(this.rd(this.indy(1))); this.cycles += 5; break;
+      // logic
+      case 0x29: this.a = this.nz(this.a & this.fetch()); this.cycles += 2; break;
+      case 0x25: this.a = this.nz(this.a & this.rd(this.zp())); this.cycles += 3; break;
+      case 0x35: this.a = this.nz(this.a & this.rd(this.zpx())); this.cycles += 4; break;
+      case 0x2D: this.a = this.nz(this.a & this.rd(this.abs())); this.cycles += 4; break;
+      case 0x3D: this.a = this.nz(this.a & this.rd(this.absx(1))); this.cycles += 4; break;
+      case 0x39: this.a = this.nz(this.a & this.rd(this.absy(1))); this.cycles += 4; break;
+      case 0x21: this.a = this.nz(this.a & this.rd(this.indx())); this.cycles += 6; break;
+      case 0x31: this.a = this.nz(this.a & this.rd(this.indy(1))); this.cycles += 5; break;
+      case 0x09: this.a = this.nz(this.a | this.fetch()); this.cycles += 2; break;
+      case 0x05: this.a = this.nz(this.a | this.rd(this.zp())); this.cycles += 3; break;
+      case 0x15: this.a = this.nz(this.a | this.rd(this.zpx())); this.cycles += 4; break;
+      case 0x0D: this.a = this.nz(this.a | this.rd(this.abs())); this.cycles += 4; break;
+      case 0x1D: this.a = this.nz(this.a | this.rd(this.absx(1))); this.cycles += 4; break;
+      case 0x19: this.a = this.nz(this.a | this.rd(this.absy(1))); this.cycles += 4; break;
+      case 0x01: this.a = this.nz(this.a | this.rd(this.indx())); this.cycles += 6; break;
+      case 0x11: this.a = this.nz(this.a | this.rd(this.indy(1))); this.cycles += 5; break;
+      case 0x49: this.a = this.nz(this.a ^ this.fetch()); this.cycles += 2; break;
+      case 0x45: this.a = this.nz(this.a ^ this.rd(this.zp())); this.cycles += 3; break;
+      case 0x55: this.a = this.nz(this.a ^ this.rd(this.zpx())); this.cycles += 4; break;
+      case 0x4D: this.a = this.nz(this.a ^ this.rd(this.abs())); this.cycles += 4; break;
+      case 0x5D: this.a = this.nz(this.a ^ this.rd(this.absx(1))); this.cycles += 4; break;
+      case 0x59: this.a = this.nz(this.a ^ this.rd(this.absy(1))); this.cycles += 4; break;
+      case 0x41: this.a = this.nz(this.a ^ this.rd(this.indx())); this.cycles += 6; break;
+      case 0x51: this.a = this.nz(this.a ^ this.rd(this.indy(1))); this.cycles += 5; break;
+      case 0x24: a = this.rd(this.zp()); this.p = (this.p & 0x3D) | (a & 0xC0) | ((a & this.a) ? 0 : 2); this.cycles += 3; break;
+      case 0x2C: a = this.rd(this.abs()); this.p = (this.p & 0x3D) | (a & 0xC0) | ((a & this.a) ? 0 : 2); this.cycles += 4; break;
+      // compares
+      case 0xC9: this.cmp(this.a, this.fetch()); this.cycles += 2; break;
+      case 0xC5: this.cmp(this.a, this.rd(this.zp())); this.cycles += 3; break;
+      case 0xD5: this.cmp(this.a, this.rd(this.zpx())); this.cycles += 4; break;
+      case 0xCD: this.cmp(this.a, this.rd(this.abs())); this.cycles += 4; break;
+      case 0xDD: this.cmp(this.a, this.rd(this.absx(1))); this.cycles += 4; break;
+      case 0xD9: this.cmp(this.a, this.rd(this.absy(1))); this.cycles += 4; break;
+      case 0xC1: this.cmp(this.a, this.rd(this.indx())); this.cycles += 6; break;
+      case 0xD1: this.cmp(this.a, this.rd(this.indy(1))); this.cycles += 5; break;
+      case 0xE0: this.cmp(this.x, this.fetch()); this.cycles += 2; break;
+      case 0xE4: this.cmp(this.x, this.rd(this.zp())); this.cycles += 3; break;
+      case 0xEC: this.cmp(this.x, this.rd(this.abs())); this.cycles += 4; break;
+      case 0xC0: this.cmp(this.y, this.fetch()); this.cycles += 2; break;
+      case 0xC4: this.cmp(this.y, this.rd(this.zp())); this.cycles += 3; break;
+      case 0xCC: this.cmp(this.y, this.rd(this.abs())); this.cycles += 4; break;
+      // shifts
+      case 0x0A: this.a = this.asl(this.a); this.cycles += 2; break;
+      case 0x4A: this.a = this.lsr(this.a); this.cycles += 2; break;
+      case 0x2A: this.a = this.rol(this.a); this.cycles += 2; break;
+      case 0x6A: this.a = this.ror(this.a); this.cycles += 2; break;
+      case 0x06: this.rmw(this.zp(), (v) => this.asl(v)); this.cycles += 5; break;
+      case 0x16: this.rmw(this.zpx(), (v) => this.asl(v)); this.cycles += 6; break;
+      case 0x0E: this.rmw(this.abs(), (v) => this.asl(v)); this.cycles += 6; break;
+      case 0x1E: this.rmw(this.absx(0), (v) => this.asl(v)); this.cycles += 7; break;
+      case 0x46: this.rmw(this.zp(), (v) => this.lsr(v)); this.cycles += 5; break;
+      case 0x56: this.rmw(this.zpx(), (v) => this.lsr(v)); this.cycles += 6; break;
+      case 0x4E: this.rmw(this.abs(), (v) => this.lsr(v)); this.cycles += 6; break;
+      case 0x5E: this.rmw(this.absx(0), (v) => this.lsr(v)); this.cycles += 7; break;
+      case 0x26: this.rmw(this.zp(), (v) => this.rol(v)); this.cycles += 5; break;
+      case 0x36: this.rmw(this.zpx(), (v) => this.rol(v)); this.cycles += 6; break;
+      case 0x2E: this.rmw(this.abs(), (v) => this.rol(v)); this.cycles += 6; break;
+      case 0x3E: this.rmw(this.absx(0), (v) => this.rol(v)); this.cycles += 7; break;
+      case 0x66: this.rmw(this.zp(), (v) => this.ror(v)); this.cycles += 5; break;
+      case 0x76: this.rmw(this.zpx(), (v) => this.ror(v)); this.cycles += 6; break;
+      case 0x6E: this.rmw(this.abs(), (v) => this.ror(v)); this.cycles += 6; break;
+      case 0x7E: this.rmw(this.absx(0), (v) => this.ror(v)); this.cycles += 7; break;
+      // jumps
+      case 0x4C: this.pc = this.fetch16(); this.cycles += 3; break;
+      case 0x6C: { const p = this.fetch16(); this.pc = this.rd(p) | (this.rd((p & 0xFF00) | ((p + 1) & 0xFF)) << 8); this.cycles += 5; break; }
+      case 0x20: { const t = this.fetch16(); const r = (this.pc - 1) & 0xFFFF; this.push(r >> 8); this.push(r & 0xFF); this.pc = t; this.cycles += 6; break; }
+      case 0x60: { const l = this.pull(); this.pc = ((l | (this.pull() << 8)) + 1) & 0xFFFF; this.cycles += 6; break; }
+      case 0x40: { this.p = (this.pull() & ~0x10) | 0x20; const l = this.pull(); this.pc = l | (this.pull() << 8); this.cycles += 6; break; }
+      case 0x00: { this.pc = (this.pc + 1) & 0xFFFF; this.push(this.pc >> 8); this.push(this.pc & 0xFF); this.push(this.p | 0x30); this.p |= 4; this.pc = this.rd(0xFFFE) | (this.rd(0xFFFF) << 8); this.cycles += 7; break; }
+      // branches
+      case 0x10: this.branch(!(this.p & 0x80)); this.cycles += 2; break;
+      case 0x30: this.branch(this.p & 0x80); this.cycles += 2; break;
+      case 0x50: this.branch(!(this.p & 0x40)); this.cycles += 2; break;
+      case 0x70: this.branch(this.p & 0x40); this.cycles += 2; break;
+      case 0x90: this.branch(!(this.p & 1)); this.cycles += 2; break;
+      case 0xB0: this.branch(this.p & 1); this.cycles += 2; break;
+      case 0xD0: this.branch(!(this.p & 2)); this.cycles += 2; break;
+      case 0xF0: this.branch(this.p & 2); this.cycles += 2; break;
+      // flags
+      case 0x18: this.p &= ~1; this.cycles += 2; break;
+      case 0x38: this.p |= 1; this.cycles += 2; break;
+      case 0x58: this.p &= ~4; this.cycles += 2; break;
+      case 0x78: this.p |= 4; this.cycles += 2; break;
+      case 0xB8: this.p &= ~0x40; this.cycles += 2; break;
+      case 0xD8: this.p &= ~8; this.cycles += 2; break;
+      case 0xF8: this.p |= 8; this.cycles += 2; break;
+      case 0xEA: this.cycles += 2; break;
+      default: this.cycles += 2; this.bad = op; break;   // undocumented: treat as 2-cycle NOP, remember
+    }
+  }
+}
+
+// VIC-1001 (VIC-20, NTSC) subset needed to run SPACE MOTH FIGHTER.
+// The machine-language part ($15A0-$1E06) runs unmodified on a 6502 core.
+// The BASIC part (lines 10-2010) is re-written in JavaScript statement by statement (no ROMs are used).
+const VIC_CLOCK = 1022727;               // NTSC
+const FRAME_CYC = Math.round(VIC_CLOCK / 60);
+const IRQ_COST = 1500;                    // cycles the KERNAL 60 Hz interrupt would take each frame (approx.)
+const BASIC_FOR_CYC = 1130;               // one empty FOR..NEXT iteration in VIC BASIC (approx.)
+
+class VIC20 {
+  constructor(prog, charrom) {
+    this.ram = new Uint8Array(0x10000);
+    this.color = new Uint8Array(0x400);   // $9400-$97FF (4 bits)
+    this.vic = new Uint8Array(16);
+    this.vic.set([0x05, 0x19, 0x96, 0x2E, 0, 0, 0, 0, 0xFF, 0xFF, 0, 0, 0, 0, 0, 0x1B]);
+    this.charrom = charrom;               // substitute font (VIC ROM is not reproduced)
+    // ROM areas are not available; fill with fixed pseudo-random bytes (the game's random routine
+    // at $1B58 reads arbitrary memory through ($36),Y)
+    this.rom = new Uint8Array(0x4000); let s = 0x2F6B;
+    for (let i = 0; i < this.rom.length; i++) { s = (s * 1103515245 + 12345) >>> 0; this.rom[i] = (s >>> 16) & 0xFF; }
+    this.ram.set(prog, 0x15A0);
+    this.ram[0x36] = 0x00; this.ram[0x37] = 0x96;           // after POKE55,150
+    this.ram[0xC5] = 64; this.ram[0x28D] = 0;
+    this.onSound = null;
+    const self = this;
+    this.cpu = new CPU6502({ rd: (a) => self.rd(a), wr: (a, v) => self.wr(a, v) });
+  }
+  rd(a) {
+    if (a < 0x0400 || (a >= 0x1000 && a < 0x2000)) return this.ram[a];
+    if (a >= 0x8000 && a < 0x9000) return this.charrom[a & 0x3FF];
+    if (a >= 0x9000 && a < 0x9010) return this.vic[a & 15];
+    if (a >= 0x9400 && a < 0x9800) return this.color[a - 0x9400] | 0xF0;
+    if (a >= 0xC000) return this.rom[a & 0x3FFF];
+    if (a >= 0x9100 && a < 0x9200) return 0xFF;
+    return a >> 8;                                          // unconnected: open bus
+  }
+  wr(a, v) {
+    if (a < 0x0400 || (a >= 0x1000 && a < 0x2000)) { this.ram[a] = v; return; }
+    if (a >= 0x9000 && a < 0x9010) { this.vic[a & 15] = v; if ((a & 15) >= 10 && (a & 15) <= 14 && this.onSound) this.onSound(a & 15, v, this.cpu.cycles); return; }
+    if (a >= 0x9400 && a < 0x9800) { this.color[a - 0x9400] = v & 15; return; }
+  }
+  peek(a) { return this.rd(a); }
+  poke(a, v) { this.wr(a, v & 0xFF); }
+  // run the CPU from addr until its final RTS; resumable across frames
+  sysStart(addr) { const c = this.cpu; c.s = 0xF0; c.push(0xFF); c.push(0xFE); c.pc = addr; this.inSys = true; }  // returns to $FFFF
+  runCycles(n) {
+    const c = this.cpu, end = c.cycles + n;
+    while (c.cycles < end) { c.step(); if (c.pc === 0xFFFF) { this.inSys = false; return true; } }
+    return false;
+  }
+  // ---- screen editor (PRINT) ----
+  screenBase() { return ((this.vic[5] & 0xF0) << 6 | (this.vic[2] & 0x80) << 2) & 0x3FFF; }
+  scr() { const v = this.screenBase(); return v & 0x2000 ? v - 0x2000 : v + 0x8000; }
+  colBase() { return (this.vic[2] & 0x80) ? 0x200 : 0; }
+  initEditor() { this.cur = { x: 0, y: 0, rvs: false, color: 6, wrapped: false }; }
+  clr() { const s = this.scr(); for (let i = 0; i < 506; i++) { this.ram[s + i] = 32; this.color[this.colBase() + i] = this.cur.color; } this.cur.x = 0; this.cur.y = 0; }
+  print(str) {
+    const k = this.cur, COL = { 144: 0, 5: 1, 28: 2, 159: 3, 156: 4, 30: 5, 31: 6, 158: 7 };
+    for (const ch of str) {
+      const c = typeof ch === 'number' ? ch : ch.charCodeAt(0);
+      if (c === 147) { this.clr(); k.wrapped = false; continue; }
+      if (c === 19) { k.x = 0; k.y = 0; k.wrapped = false; continue; }
+      if (c === 17) { k.y = Math.min(22, k.y + 1); k.wrapped = false; continue; }
+      if (c === 145) { k.y = Math.max(0, k.y - 1); continue; }
+      if (c === 29) { if (++k.x >= 22) { k.x = 0; k.y = Math.min(22, k.y + 1); } continue; }
+      if (c === 157) { if (--k.x < 0) { k.x = 21; k.y = Math.max(0, k.y - 1); } continue; }
+      if (c === 18) { k.rvs = true; continue; }
+      if (c === 146) { k.rvs = false; continue; }
+      if (c in COL) { k.color = COL[c]; continue; }
+      if (c === 13) { k.rvs = false; k.x = 0; if (!k.wrapped) k.y++; k.wrapped = false; if (k.y > 22) k.y = 22; continue; }
+      let sc;
+      if (c >= 32 && c < 64) sc = c; else if (c >= 64 && c < 96) sc = c - 64; else if (c >= 96 && c < 128) sc = c - 32;
+      else if (c >= 160 && c < 192) sc = c - 64; else if (c >= 192 && c < 224) sc = c - 128; else continue;
+      if (k.rvs) sc |= 128;
+      const o = k.y * 22 + k.x; this.ram[this.scr() + o] = sc; this.color[this.colBase() + o] = k.color;
+      k.wrapped = false;
+      if (++k.x >= 22) { k.x = 0; k.y = Math.min(22, k.y + 1); k.wrapped = true; }
+    }
+  }
+  // ---- video: 22x23 characters, 176x184 pixels inside a border ----
+  render(rgba, W, H, ox, oy) {
+    const PAL = [[0,0,0],[255,255,255],[182,31,33],[77,240,255],[180,63,255],[68,226,55],[26,52,255],[220,215,27],
+      [202,84,0],[233,176,114],[231,146,147],[154,247,253],[224,159,255],[143,228,147],[130,144,255],[229,222,133]];
+    const v = this.vic, bg = v[15] >> 4, border = v[15] & 7, aux = v[14] >> 4, inv = !(v[15] & 8);
+    const cols = v[2] & 0x7F, rows = (v[3] >> 1) & 0x3F, tall = v[3] & 1;
+    const sb = this.screenBase(), cb = (v[5] & 15) << 10, colb = this.colBase();
+    const vrd = (va) => { va &= 0x3FFF; return va & 0x2000 ? this.ram[va - 0x2000] : this.rd(0x8000 + va); };
+    const put = (x, y, c) => { const o = (y * W + x) * 4, p = PAL[c]; rgba[o] = p[0]; rgba[o + 1] = p[1]; rgba[o + 2] = p[2]; rgba[o + 3] = 255; };
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) put(x, y, border);
+    const ch = tall ? 16 : 8;
+    for (let r = 0; r < rows; r++) for (let cx = 0; cx < cols; cx++) {
+      const i = r * cols + cx, code = vrd(sb + i), col = this.color[(colb + i) & 0x3FF];
+      for (let line = 0; line < ch; line++) {
+        let bits = vrd(cb + code * ch + line); if (inv) bits ^= 0xFF;
+        const py = oy + r * ch + line; if (py >= H) continue;
+        if (col & 8) {
+          for (let p = 0; p < 4; p++) { const m = (bits >> (6 - p * 2)) & 3, c = [bg, border, col & 7, aux][m];
+            put(ox + cx * 8 + p * 2, py, c); put(ox + cx * 8 + p * 2 + 1, py, c); }
+        } else for (let b = 0; b < 8; b++) put(ox + cx * 8 + b, py, (bits & (0x80 >> b)) ? (col & 7) : bg);
+      }
+    }
+  }
+}
+
+// ---- the BASIC program, line by line. yields: {wait:cycles} | {sys:addr} | {frame:true}
+function* basicProgram(m, io) {
+  const peek = (a) => m.peek(a), poke = (a, v) => m.poke(a, v), RND = () => Math.random();
+  const DATA = [191, 8, 213, 6, 207, 3, 204, 3, 198, 3, 223, 8, 213, 6, 207, 3, 204, 3, 198, 3, 223, 8, 213, 6, 207, 3, 204, 3, 207, 3, 198, 8, 0, 8];
+  for (;;) {                                                     // RUN
+    let B, S = 0, M = 0, P = 0, A = 0, T, dp = 0;
+    m.initEditor();
+    // 10
+    poke(51, 150); poke(55, 150); poke(52, 21); poke(56, 21); B = 3;
+    // 20  (36879 = $900F: black screen and border)
+    poke(36879, 8); poke(36869, 255); poke(36878, 15); poke(5742, 10);
+    // 25
+    let I;
+    for (I = 7632; I <= 7632 + 48; I++) poke(I, Math.floor(RND() * 3));
+    for (I = 7681; I >= 7665; I--) poke(I, peek(I) + 4);   // FOR I=7681 TO I-16 STEP -1 (I is 7681 here)
+    // 30-80 title screen (control codes as worked out from the magazine's correction box and photo 1)
+    const RVS = 18, OFF = 146, CLR = 147, D = 17, R = 29, WHT = 5, GRN = 30, BLU = 31, YEL = 158, CYN = 159, CR = 13;
+    m.print([CLR, RVS, WHT, ...'**SPACE MOTH FIGHTER**', CR]);
+    m.print([RVS, GRN, D, D, R, R, R, R, R, ...'KEY FUNCTIO', CR]);
+    m.print([CYN, D, D, R, R, R, R, R, R, RVS, 'N', '-', OFF, '@', RVS, '-', 'M', CR]);
+    m.print([YEL, RVS, D, R, R, R, ...'BEAM --- SHIFT', CR]);
+    m.print([D, D, GRN, 'L', ' ', ' ', ' ', YEL, 'G', RVS, WHT, ...'...RUIJIN', ' ', ' ', ' ', ' ', ' ', OFF, GRN, 'L', CR]);
+    m.print([D, D, GRN, 'L', ' ', ' ', ' ', YEL, 'K', RVS, WHT, ...'...ATSUKA', ' ', ' ', ' ', ' ', ' ', OFF, GRN, 'L', CR]);
+    m.print([BLU, RVS, D, D, D, R, R, ...'HIT [F1] KEY', CR]);
+    // 90
+    while (peek(197) !== 39) yield { frame: true };
+    // 95 title tune on the soprano voice
+    let C;
+    for (let d = 0; d <= 16; d++) { A = DATA[dp++]; poke(36876, A); C = DATA[dp++]; yield { wait: 40 * C * BASIC_FOR_CYC }; }
+    // 100-190
+    let line = 100;
+    for (;;) {
+      if (line === 100) {
+        // 1010-1080
+        for (I = 0; I <= 2; I++) poke(I + 7613, Math.floor(RND() * 12 + 1));
+        if (M === 4) { A = 14; P = 2; }
+        else {
+          M = M + 1; if (M === 3) { P = P + 1; M = 0; if (P === 2) M = 4; }
+          if (M === 1) A = 2;
+          if (M === 2) A = 4;
+          if (M === 3) A = 7;
+        }
+        poke(6066, P + 1); poke(6779, 15); for (I = 7440; I <= 7456; I++) poke(I, 0); poke(7516, 30); poke(0, 30 + A);
+        line = 110;
+      }
+      if (line === 110) {
+        // 1000-1001
+        poke(7537, 13); poke(7504, 11);
+        for (I = 7440; I <= 7440 + A; I++) poke(I, 1);
+        for (I = 7455; I <= 7486; I++) poke(I, 24);
+        m.print([CYN, CLR, D, D, ...Array(14).fill(R), 'A', RVS, ':', ...(' ' + (B - 1) + ' '), CR]);  // 110 ship icon : lives
+        m.print([19, RVS, WHT, ...'MOTH', OFF, YEL, ...'QQQQQQQQQQ', CR]);                         // 120
+        m.print([RVS, CYN, ...'FUEL', OFF, 28, ...'QQQQQQQQQQ ', CR]);                               // 130
+        yield { sys: 6152 };
+        m.print([19, ...Array(21).fill(D), GRN, ...'IIIIIIIIIIIIIIIIIIIIII', 19]);                    // 140
+        for (I = 1; I <= 22; I++) poke(I + 38883, 4);                                                // 150
+        poke(7520, 1); poke(8120 + peek(7504), 0);                                                   // 160
+        yield { sys: 5616 };
+        T = (30 + A - peek(0)) * 20; S = S + T;                                                      // 161
+        if (peek(7520) === 0) {                                                                      // 170 -> 800
+          for (I = 13; I <= 16; I++) { poke(8120 + peek(7504), I); poke(36877, I * 2 + 198); poke(36875, I * 2 + 148); yield { wait: 400 * BASIC_FOR_CYC }; }
+          poke(36875, 0); poke(36877, 0); B = B - 1;
+          if (B !== 0) { line = 110; continue; }
+        } else if (peek(7537) !== 3) { line = 100; continue; }                                     // 180/190
+        // 820-840
+        m.print([WHT, 19, D, D, D, D, D, D, R, R, R, R, R, R, RVS, ...'GAME OVER ', CR]);
+        m.print([RVS, D, D, R, R, R, ...('SCORE-' + (S < 0 ? '' : ' ') + S), CR]);
+        io.gameOver && io.gameOver(S);
+        yield { wait: 4000 * BASIC_FOR_CYC };
+        break;                                                                                       // RUN
+      }
+    }
+  }
+}
+
+// VIC 6560 sound: 3 square-wave voices + noise, master volume. Register writes are time-stamped.
+class VICSound {
+  constructor(sr) { this.sr = sr; this.r = new Uint8Array(16); this.ph = [0, 0, 0, 0]; this.nb = 1; this.lfsr = 0x7FFF; this.queue = []; this.lastT = 0; this.xp = 0; this.yp = 0; }
+  push(t, reg, val) {
+    if (t < this.lastT) t = this.lastT; this.lastT = t;
+    this.queue.push({ t, reg, val });
+    if (this.queue.length > 4000) for (const e of this.queue.splice(0, 2000)) this.r[e.reg] = e.val;
+  }
+  render(out, t0) {
+    const DIV = [256, 128, 64, 32], CLK = 1022727, sr = this.sr, q = this.queue, r = this.r;
+    for (let i = 0; i < out.length; i++) {
+      const t = t0 + i / sr;
+      while (q.length && q[0].t <= t) { const e = q.shift(); r[e.reg] = e.val; }
+      let s = 0;
+      for (let v = 0; v < 4; v++) {
+        const reg = r[10 + v]; if (!(reg & 0x80)) continue;
+        const f = CLK / DIV[v] / (128 - (reg & 0x7F)) / 2;   // square wave: counter toggles the output
+        this.ph[v] += f / sr;
+        if (v < 3) { if (f > sr * 0.45) { s += 0.5; continue; } this.ph[v] -= Math.floor(this.ph[v]); s += this.ph[v] < 0.5 ? 1 : 0; }
+        else { while (this.ph[v] >= 0.5) { this.ph[v] -= 0.5; const b = ((this.lfsr >> 0) ^ (this.lfsr >> 1)) & 1; this.lfsr = (this.lfsr >> 1) | (b << 14); this.nb = this.lfsr & 1; } s += this.nb; }
+      }
+      s *= (r[14] & 15) / 15 * 0.18;
+      const y = s - this.xp + 0.995 * this.yp; this.xp = s; this.yp = y;
+      out[i] = y;
+    }
+  }
+}
+
+(function () {
+  const dec = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  const PROG = dec(SMF_PROG), ROM = dec(SMF_CHR);
+  const W = 192, H = 200;
+  const cv = document.getElementById('scr'), ctx = cv.getContext('2d');
+  const off = document.createElement('canvas'); off.width = W; off.height = H;
+  const octx = off.getContext('2d'), img = octx.createImageData(W, H);
+  const overlay = document.getElementById('startOverlay'), speedSel = document.getElementById('speed');
+  const muteBtn = document.getElementById('mute'), padLamp = document.getElementById('padLamp');
+  const bestEl = document.getElementById('best');
+  let m, g, wait = 0, speed = 1, running = false, lastT = 0, acc = 0, best = null;
+  let emu = 0, cpuMark = 0, inCpu = false;          // emulated time in VIC cycles
+  let audio = null, snd = null, muted = false, tBase = 0, eBase = 0;
+
+  // ---- input: the game reads the VIC keyboard matrix result ($C5) and the SHIFT flag ($028D)
+  // directly, so a key works only while it is held. SHIFT must be released before the next shot (original).
+  const held = [];                       // $C5 codes: 28 = N, 36 = M, 39 = F1
+  const gp = { code: 0, fire: false };
+  let kFire = false, tFire = false;
+  function refresh() {
+    if (!m) return;
+    m.ram[0xC5] = gp.code || (held.length ? held[held.length - 1] : 64);
+    m.ram[0x28D] = (kFire || tFire || gp.fire) ? 1 : 0;
+  }
+  function press(c) { if (!held.includes(c)) held.push(c); refresh(); }
+  function release(c) { const i = held.indexOf(c); if (i >= 0) held.splice(i, 1); refresh(); }
+  const KEY = { n: 28, N: 28, ArrowLeft: 28, m: 36, M: 36, ArrowRight: 36, F1: 39, Enter: 39 };
+  const CODE = { KeyN: 28, Numpad4: 28, KeyM: 36, Numpad6: 36, NumpadEnter: 39 };
+  const codeOf = (e) => CODE[e.code] || KEY[e.key] || 0;
+  const isFire = (e) => e.key === 'Shift' || e.code === 'Space';
+  window.addEventListener('keydown', (e) => {
+    if (!running) return;
+    const c = codeOf(e);
+    if (c) { press(c); e.preventDefault(); return; }
+    if (isFire(e)) { kFire = true; refresh(); e.preventDefault(); }
+  });
+  window.addEventListener('keyup', (e) => {
+    const c = codeOf(e); if (c) release(c);
+    if (isFire(e)) { kFire = false; refresh(); }
+  });
+  window.addEventListener('blur', () => { held.length = 0; kFire = false; refresh(); });
+
+  const hold = (b, on, offf) => {
+    b.addEventListener('pointerdown', (e) => { e.preventDefault(); if (!running) return; b.classList.add('down'); on(); });
+    const up = (e) => { e.preventDefault(); b.classList.remove('down'); offf(); };
+    b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up); b.addEventListener('pointerleave', up);
+  };
+  document.querySelectorAll('.lr button[data-k]').forEach((b) => { const c = +b.dataset.k; hold(b, () => press(c), () => release(c)); });
+  hold(document.getElementById('tFire'), () => { tFire = true; refresh(); }, () => { tFire = false; refresh(); });
+  const tStart = document.getElementById('tStart');
+  tStart.addEventListener('pointerdown', (e) => { e.preventDefault(); if (!running) { powerOn(); return; } tStart.classList.add('down'); press(39); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => tStart.addEventListener(ev, () => { tStart.classList.remove('down'); release(39); }));
+
+  // ---- PC gamepad: D-pad / left stick = left/right, A B X Y / R = beam, START = F1
+  function pollPad() {
+    let p = null;
+    try { const ps = navigator.getGamepads ? navigator.getGamepads() : []; for (const q of ps) if (q && q.connected) { p = q; break; } } catch (e) { p = null; }
+    padLamp.classList.toggle('on', !!p);
+    let code = 0, fire = false;
+    if (p) {
+      const b = (i) => !!(p.buttons[i] && p.buttons[i].pressed);
+      const ax = p.axes[0] || 0, T = 0.5;
+      if (b(14) || ax < -T) code = 28; else if (b(15) || ax > T) code = 36;
+      if (b(9)) code = 39;
+      fire = b(0) || b(1) || b(2) || b(3) || b(5) || b(7);
+    }
+    gp.code = code; gp.fire = fire; refresh();
+    requestAnimationFrame(pollPad);
+  }
+  requestAnimationFrame(pollPad);
+
+  // ---- one 1/60 s video frame: BASIC statements and SYS calls share the frame; the KERNAL IRQ takes the rest
+  function step() {
+    const end = emu + FRAME_CYC;
+    let budget = FRAME_CYC - IRQ_COST;
+    while (budget > 0) {
+      if (m.inSys) {
+        const c0 = m.cpu.cycles; cpuMark = c0; inCpu = true;
+        const done = m.runCycles(budget); inCpu = false;
+        const d = m.cpu.cycles - c0; emu += d; budget -= d;
+        if (!done) break; continue;
+      }
+      if (wait > 0) { const d = Math.min(wait, budget); wait -= d; budget -= d; emu += d; continue; }
+      const r = g.next().value; if (!r) break;
+      if (r.frame) break;
+      if (r.wait) wait = r.wait;
+      if (r.sys) m.sysStart(r.sys);
+    }
+    emu = end;
+  }
+  function boot() {
+    m = new VIC20(PROG, ROM); wait = 0; emu = 0;
+    const io = { gameOver: (s) => { if (best === null || s > best) { best = s; bestEl.textContent = s + ' 点'; } } };
+    g = basicProgram(m, io);
+    m.onSound = (reg, val) => {
+      if (!snd) return;
+      const e = emu + (inCpu ? m.cpu.cycles - cpuMark : 0);
+      snd.push(tBase + (e - eBase) / (VIC_CLOCK * speed), reg, val);
+    };
+    refresh();
+  }
+  function startAudio() {
+    if (audio) { audio.resume && audio.resume(); return; }
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audio = new AC(); snd = new VICSound(audio.sampleRate);
+      if (m) for (let r = 10; r <= 14; r++) snd.r[r] = m.vic[r];   // registers set before audio existed (POKE36878,15 at line 20)
+      const node = audio.createScriptProcessor(2048, 0, 1);
+      node.onaudioprocess = (e) => {
+        const out = e.outputBuffer.getChannelData(0);
+        snd.render(out, e.playbackTime !== undefined ? e.playbackTime : audio.currentTime);
+        if (muted) out.fill(0);
+      };
+      node.connect(audio.destination);
+    } catch (err) { audio = null; snd = null; }
+  }
+  // ---- option: a moth that escaped to the ground travels off screen until its 1-byte row counter
+  // wraps (y = 23..255, 0), about 28 s at normal speed. With the option on, after about 3 s of real
+  // time it is moved to y = 255, so it comes back from the top two moves later, as in the original.
+  const quickEl = document.getElementById('quick');
+  const hiddenSince = new Array(15).fill(0);
+  function quickReturn(now) {
+    const on = quickEl.checked, lead = 2 * 117 / speed;        // two moves (~0.12 s each at 1x)
+    for (let i = 0; i < 15; i++) {
+      const s = m.ram[0x1D10 + i], y = m.ram[0x1D30 + i];
+      if (!(s >= 2 && y >= 22 && y <= 254)) { hiddenSince[i] = 0; continue; }
+      if (!hiddenSince[i]) hiddenSince[i] = now;
+      if (on && now - hiddenSince[i] >= Math.max(0, 3000 - lead)) { m.ram[0x1D30 + i] = 255; hiddenSince[i] = 0; }
+    }
+  }
+  function draw() {
+    m.render(img.data, W, H, 8, 8);
+    octx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, 0, 0, W, H, 0, 0, cv.width, cv.height);
+  }
+  function frame(t) {
+    if (!running) return;
+    let dt = t - lastT; lastT = t;
+    if (dt > 50) dt = 50; if (dt < 0) dt = 0;
+    acc += dt / 1000 * VIC_CLOCK * speed;
+    if (audio) { tBase = audio.currentTime + 0.09; eBase = emu; }
+    while (acc >= FRAME_CYC) { step(); acc -= FRAME_CYC; }
+    quickReturn(t);
+    draw();
+    requestAnimationFrame(frame);
+  }
+  function powerOn() {
+    startAudio(); if (!m) boot();
+    overlay.hidden = true; running = true; lastT = performance.now();
+    requestAnimationFrame(frame);
+  }
+  overlay.addEventListener('click', powerOn);
+  document.getElementById('reset').addEventListener('click', () => {
+    if (snd) { snd.queue.length = 0; snd.r.fill(0); snd.lastT = 0; }
+    boot(); if (!running) powerOn();
+  });
+  speedSel.addEventListener('change', () => { speed = parseFloat(speedSel.value) || 1; });
+  muteBtn.addEventListener('click', () => { muted = !muted; muteBtn.textContent = muted ? '音: OFF' : '音: ON'; });
+
+  window.SMF_DEBUG = () => m;
+  boot(); for (let i = 0; i < 30; i++) step(); draw();
+})();
+</script>

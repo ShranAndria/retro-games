@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中川智裕 マイコンゲーム作品集 1982–1985</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=BIZ+UDPGothic:wght@400;700&display=swap">
+<style>
+:root {
+  --bg: #0b0d14; --card: #151927; --edge: #2c3142;
+  --ink: #e7e9f0; --muted: #8d93a8;
+  --cyan: #3ee6f0; --yellow: #ffe23a; --red: #ff4a4a;
+  --display: "DotGothic16", "MS Gothic", monospace;
+  --body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.75; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 36px 16px 56px; }
+header { margin-bottom: 32px; }
+header .kicker { font-family: var(--display); color: var(--cyan); letter-spacing: .3em; font-size: 14px; margin: 0 0 6px; }
+header h1 { font-family: var(--display); font-weight: 400; color: var(--yellow); font-size: clamp(26px, 5vw, 42px); letter-spacing: .12em; line-height: 1.3; margin: 0 0 14px; }
+header p { margin: 0; color: var(--muted); max-width: 46em; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px; }
+.card { background: var(--card); border: 1px solid var(--edge); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+.card:hover, .card:focus-visible { border-color: var(--cyan); transform: translateY(-2px); outline: none; }
+.shot { background: #000; aspect-ratio: 640 / 400; display: grid; place-items: center; }
+.shot img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; display: block; }
+.body { padding: 16px 18px 18px; display: grid; gap: 6px; flex: 1; }
+.year { font-family: var(--display); color: var(--red); letter-spacing: .15em; font-size: 14px; }
+.card h2 { font-family: var(--display); font-weight: 400; font-size: 24px; letter-spacing: .12em; margin: 0; color: var(--yellow); }
+.meta { color: var(--muted); font-size: 13px; margin: 0; }
+.desc { margin: 4px 0 0; font-size: 14px; }
+.play { margin-top: auto; padding-top: 10px; font-family: var(--display); color: var(--cyan); letter-spacing: .15em; }
+footer p { margin: 0; }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--edge); padding-top: 18px; display: grid; gap: 6px; }
+footer a { color: var(--cyan); }
+</style>
+<div class="wrap">
+  <header>
+    <p class="kicker">RETRO GAME REVIVAL</p>
+    <h1>中川智裕 マイコンゲーム作品集<br>1982–1985</h1>
+    <p>中学・高校時代に作り、雑誌に掲載されたゲーム4本を、ブラウザで遊べるように復元しました。誌面のダンプリストからマシン語を読み起こし、当時のプログラムをそのままエミュレーションで動かしています。カードを選ぶと遊べます。</p>
+  </header>
+
+  <main class="grid">
+    <a class="card" href="space-moth-fighter.html">
+      <div class="shot"><img src="img/space-moth-fighter.gif" alt="SPACE MOTH FIGHTER のプレイ画面" loading="lazy"></div>
+      <div class="body">
+        <span class="year">1982</span>
+        <h2>SPACE MOTH FIGHTER</h2>
+        <p class="meta">VIC-1001 ／ BASIC＋6502マシン語 ／ 工学社「マイコンゲームの本 4」</p>
+        <p class="desc">宇宙蛾ルイジンと、地下から舌を伸ばすアツカを相手に戦う固定画面シューティング。中学2年のときの作品です。</p>
+        <span class="play">▶ PLAY</span>
+      </div>
+    </a>
+    <a class="card" href="star-dash.html">
+      <div class="shot"><img src="img/star-dash.gif" alt="STAR DASH のプレイ画面" loading="lazy"></div>
+      <div class="body">
+        <span class="year">1983</span>
+        <h2>STAR DASH</h2>
+        <p class="meta">FM-7 ／ マシン語 ／ Pio 掲載</p>
+        <p class="desc">ワープ戦闘機 "F-W77" で敵母星をめざすシューティング。1ラウンドは CRUIZER との撃ち合い、隕石帯、敵母星前の3シーン。</p>
+        <span class="play">▶ PLAY</span>
+      </div>
+    </a>
+    <a class="card" href="alien-tank-7.html">
+      <div class="shot"><img src="img/alien-tank-7.gif" alt="ALIEN TANK-7 のプレイ画面" loading="lazy"></div>
+      <div class="body">
+        <span class="year">1984</span>
+        <h2>ALIEN TANK-7</h2>
+        <p class="meta">FM-7 ／ Kコンパイラ＋マシン語 ／ 工学社「マイコンゲームの本 5」</p>
+        <p class="desc">迷路の中で戦車 "FM-84" を操り、ALIEN のボス "フラワン" と化けた戦車たちを撃つ。捕まった "DAN" も助け出そう。</p>
+        <span class="play">▶ PLAY</span>
+      </div>
+    </a>
+    <a class="card" href="star-dash-2.html">
+      <div class="shot"><img src="img/star-dash-2.gif" alt="STAR DASH II のプレイ画面" loading="lazy"></div>
+      <div class="body">
+        <span class="year">1985</span>
+        <h2>STAR DASH II</h2>
+        <p class="meta">FM-7 ／ Kコンパイラ＋マシン語 ／ Pio 掲載</p>
+        <p class="desc">8方向に動ける続編。敵は20種類以上、全40面。5面ごとにプラズマ・ボールで敵母船を狙うボーナス・ステージがあります。</p>
+        <span class="play">▶ PLAY</span>
+      </div>
+    </a>
+  </main>
+
+  <footer>
+    <p>操作はキーボードのほか、ゲームパッドとスマートフォンの画面ボタンにも対応しています。各ページで音が出ます。</p>
+    <p>作品の思い出や復元の話は note に書いています → <a href="https://note.com/shran1701">note.com/shran1701</a></p>
+    <p>© 中川智裕 ／ 復元：中川智裕 と Claude (Anthropic)</p>
+  </footer>
+</div>
