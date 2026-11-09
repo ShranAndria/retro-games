@@ -1,21 +1,37 @@
-MIT License
+Copyright (c) 1982-2026 Tomohiro Nakagawa (ShranAndria). All rights reserved.
 
-Copyright (c) 2026 ShranAndria
+このリポジトリのゲーム (プログラム、マシン語データ、画面、文章、画像) の著作権は
+作者・中川智裕にあります。
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+【してよいこと】
+- このサイトでゲームを遊ぶこと
+- このサイトへのリンクを貼ること
+- 紹介・感想・レビューのために、プレイ画面のスクリーンショットや動画を
+  公開すること (作品名と作者名を添えてください)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+【作者の許可なくしてはいけないこと】
+- ファイルを複製して、ほかの場所で公開・配布すること
+- 改変したもの (改造版、移植版など) を公開・配布すること
+- 商用で利用すること
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+許可の相談は GitHub の Issues からご連絡ください。
+
+----------------------------------------------------------------------
+
+Copyright (c) 1982-2026 Tomohiro Nakagawa (ShranAndria). All rights reserved.
+
+All games in this repository (programs, machine code, screens, text and images)
+are the work of Tomohiro Nakagawa.
+
+You MAY:
+- play the games on this site;
+- link to this site;
+- publish screenshots or videos of gameplay for introduction, commentary or
+  review, with the title and the author's name.
+
+You may NOT, without the author's permission:
+- copy the files and publish or distribute them elsewhere;
+- publish or distribute modified versions (mods, ports, etc.);
+- use them commercially.
+
+To ask for permission, please open an Issue on GitHub.
